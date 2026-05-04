@@ -1,0 +1,7 @@
+node_modules/
+backend/data/
+backend/target/
+*.mv.db
+*.trace.db
+.mvn/wrapper/maven-wrapper.jar
+.m2/
