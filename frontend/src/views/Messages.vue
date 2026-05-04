@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import { useUserStore } from '../stores/user'
 import { getAllUsers, getConversation, sendMessage as apiSend } from '../api'
@@ -71,7 +71,22 @@ async function fetchUsers() {
   try { const res = await getAllUsers(); users.value = res.data || [] } catch {}
 }
 
+// 自动轮询新消息（每3秒）
+let pollTimer = null
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer)
+  pollTimer = setInterval(async () => {
+    if (!currentChat.value) return
+    try {
+      const res = await getConversation(currentChat.value)
+      messages.value = res.data || []
+    } catch {}
+  }, 3000)
+}
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null } }
+
 async function startChat(user) {
+  stopPolling()
   currentChat.value = user.id
   chatUsername.value = user.username
   try {
@@ -80,6 +95,7 @@ async function startChat(user) {
     await nextTick()
     msgBox.value?.scrollTo({ top: msgBox.value.scrollHeight, behavior: 'smooth' })
   } catch {}
+  startPolling()
 }
 
 async function sendMsg() {
@@ -101,4 +117,6 @@ onMounted(() => {
   myId.value = user.id
   fetchUsers()
 })
+
+onUnmounted(stopPolling)
 </script>
