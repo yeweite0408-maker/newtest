@@ -5,24 +5,25 @@
     </router-link>
     <div class="navbar-menu">
       <router-link to="/">
-        <el-button text>
-          <el-icon><Reading /></el-icon>
-          <span>文章</span>
-        </el-button>
+        <el-button text><el-icon><Reading /></el-icon><span>文章</span></el-button>
       </router-link>
       <router-link v-if="userStore.isLoggedIn" to="/messages">
         <el-button text>
-          <el-icon><User /></el-icon>
-          <span>好友</span>
+          <el-icon><User /></el-icon><span>好友</span>
           <el-tag v-if="unreadCount > 0" size="small" type="danger" class="unread-badge">{{ unreadCount }}</el-tag>
         </el-button>
       </router-link>
-      <router-link v-if="userStore.isAdmin" to="/admin">
-        <el-button text>
-          <el-icon><Setting /></el-icon>
-          <span>管理</span>
-        </el-button>
+      <router-link v-if="userStore.isLoggedIn" :to="'/profile/' + userStore.user?.id">
+        <el-button text><el-icon><Memo /></el-icon><span>我的</span></el-button>
       </router-link>
+      <router-link v-if="userStore.isAdmin" to="/admin">
+        <el-button text><el-icon><Setting /></el-icon><span>管理</span></el-button>
+      </router-link>
+
+      <el-button text @click="toggleDark" style="font-size:16px">
+        <el-icon><MoonNight v-if="!isDark" /><Sunny v-else /></el-icon>
+      </el-button>
+
       <div v-if="userStore.isLoggedIn" class="navbar-user">
         <el-icon style="font-size:18px;color:#515154"><UserFilled /></el-icon>
         <span class="username">{{ userStore.username }}</span>
@@ -46,29 +47,29 @@ import { getUnreadCount } from '../api'
 const router = useRouter()
 const userStore = useUserStore()
 const unreadCount = ref(0)
+const isDark = ref(document.documentElement.getAttribute('data-theme') === 'dark')
 let timer = null
+
+function toggleDark() {
+  isDark.value = !isDark.value
+  document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+}
 
 async function fetchUnread() {
   if (!userStore.isLoggedIn) return
-  try {
-    const res = await getUnreadCount()
-    unreadCount.value = res.data.count
-  } catch {}
+  try { const res = await getUnreadCount(); unreadCount.value = res.data.count } catch {}
 }
 
 function handleLogout() {
-  ElMessageBox.confirm('确定要退出吗？', '提示', {
-    confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'
-  }).then(() => {
-    userStore.logout()
-    ElMessage.success('已退出')
-    router.push('/')
-  }).catch(() => {})
+  ElMessageBox.confirm('确定要退出吗？', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' })
+    .then(() => { userStore.logout(); ElMessage.success('已退出'); router.push('/') }).catch(() => {})
 }
 
 onMounted(() => {
-  fetchUnread()
-  timer = setInterval(fetchUnread, 10000)
+  const saved = localStorage.getItem('theme')
+  if (saved) { isDark.value = saved === 'dark'; document.documentElement.setAttribute('data-theme', saved) }
+  fetchUnread(); timer = setInterval(fetchUnread, 10000)
 })
 onUnmounted(() => { clearInterval(timer) })
 </script>

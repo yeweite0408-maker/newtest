@@ -35,4 +35,13 @@ public interface ArticleMapper {
 
     @Delete("DELETE FROM articles WHERE id = #{id}")
     int deleteById(Long id);
+
+    @Update("UPDATE articles SET views_count = views_count + 1 WHERE id = #{id}")
+    int incrementViewCount(Long id);
+
+    @Update("UPDATE articles SET likes_count = likes_count + 1 WHERE id = #{id}")
+    int incrementLikeCount(Long id);
+
+    @Update("UPDATE articles SET likes_count = GREATEST(0, likes_count - 1) WHERE id = #{id}")
+    int decrementLikeCount(Long id);
 }

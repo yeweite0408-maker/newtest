@@ -6,6 +6,7 @@
         <el-menu :default-active="tab" @select="tab = $event">
           <el-menu-item index="articles"><el-icon><Document /></el-icon> 文章管理</el-menu-item>
           <el-menu-item index="editor" v-if="showEditor"><el-icon><Edit /></el-icon> 编辑文章</el-menu-item>
+          <el-menu-item index="categories"><el-icon><Grid /></el-icon> 分类管理</el-menu-item>
           <el-menu-item index="users"><el-icon><User /></el-icon> 用户管理</el-menu-item>
         </el-menu>
       </div>
@@ -79,6 +80,23 @@
           </el-form>
         </div>
 
+        <div v-if="tab === 'categories'" class="admin-section">
+          <h2 style="font-size:20px;font-weight:600;margin-bottom:20px">分类管理</h2>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <el-input v-model="newCategory" placeholder="新分类名称" size="small" style="max-width:200px" @keyup.enter="addCategory" />
+            <el-button type="primary" size="small" @click="addCategory">添加</el-button>
+          </div>
+          <el-table :data="categories" stripe style="width:100%" size="small">
+            <el-table-column prop="id" label="ID" width="50" />
+            <el-table-column prop="name" label="名称" />
+            <el-table-column label="操作" width="80">
+              <template #default="{ row }">
+                <el-button size="small" type="danger" plain @click="deleteCategory(row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
         <div v-if="tab === 'users'" class="admin-section">
           <h2 style="font-size:20px;font-weight:600;margin-bottom:20px">用户管理</h2>
           <el-table :data="users" stripe style="width:100%" size="small">
@@ -98,7 +116,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
-import { getAdminArticles, createAdminArticle, updateAdminArticle, deleteAdminArticle, getUsers, uploadImage } from '../api'
+import api, { getAdminArticles, createAdminArticle, updateAdminArticle, deleteAdminArticle, getUsers, uploadImage, getCategories } from '../api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()
@@ -106,13 +124,29 @@ const tab = ref('articles')
 const showEditor = ref(false)
 const articles = ref([])
 const users = ref([])
+const categories = ref([])
 const editing = ref(null)
 const imgInput = ref(null)
+const newCategory = ref('')
 const form = ref({ title: '', category: '技术分享', tags: '', summary: '', coverImage: '', content: '' })
 
 async function fetchData() {
   try { const r1 = await getAdminArticles(); articles.value = r1.data || [] } catch {}
   try { const r2 = await getUsers(); users.value = r2.data || [] } catch {}
+  try { const r3 = await getCategories(); categories.value = r3.data || [] } catch {}
+}
+
+async function addCategory() {
+  if (!newCategory.value.trim()) return
+  try {
+    await api.post('/categories', { name: newCategory.value })
+    ElMessage.success('添加成功'); newCategory.value = ''
+    const r = await getCategories(); categories.value = r.data || []
+  } catch { ElMessage.error('添加失败') }
+}
+
+async function deleteCategory(id) {
+  try { await api.delete(`/categories/${id}`); ElMessage.success('已删除'); const r = await getCategories(); categories.value = r.data || [] } catch { ElMessage.error('删除失败') }
 }
 
 function openEditor(article) {

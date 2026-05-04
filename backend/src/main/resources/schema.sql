@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS articles (
     tags VARCHAR(200),
     author_id BIGINT NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'published',
+    views_count INT DEFAULT 0,
+    likes_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES users(id)
@@ -43,3 +45,21 @@ CREATE TABLE IF NOT EXISTS messages (
     FOREIGN KEY (from_user_id) REFERENCES users(id),
     FOREIGN KEY (to_user_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_likes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    article_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (article_id) REFERENCES articles(id)
+);
+
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS views_count INT DEFAULT 0;
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS likes_count INT DEFAULT 0;

@@ -50,4 +50,13 @@ public class UserService {
     public List<User> findAll() {
         return userMapper.findAll();
     }
+
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userMapper.findById(userId);
+        if (user == null) return false;
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) return false;
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updatePassword(user);
+        return true;
+    }
 }

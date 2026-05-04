@@ -64,6 +64,16 @@ export function uploadImage(file) {
 
 // Users
 export function getAllUsers() { return api.get('/users') }
+export function getUserProfile(userId) { return api.get(`/users/profile/${userId}`) }
+export function getLikedArticles(userId) { return api.get(`/users/${userId}/likes`) }
+export function changePassword(data) { return api.put('/users/password', data) }
+
+// Likes & Views
+export function addView(articleId) { return api.post(`/articles/${articleId}/view`) }
+export function toggleLike(articleId) { return api.post(`/articles/${articleId}/like`) }
+
+// Categories
+export function getCategories() { return api.get('/categories') }
 
 // Admin
 export function getUsers() { return api.get('/admin/users') }

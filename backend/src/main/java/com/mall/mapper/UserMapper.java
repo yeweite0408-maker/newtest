@@ -21,4 +21,7 @@ public interface UserMapper {
 
     @Select("SELECT id, username, avatar, role FROM users")
     java.util.List<User> findAll();
+
+    @Update("UPDATE users SET password = #{password} WHERE id = #{id}")
+    int updatePassword(User user);
 }

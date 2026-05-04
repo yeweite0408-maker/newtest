@@ -7,6 +7,8 @@ const routes = [
   { path: '/', name: 'Home', component: () => import('../views/Home.vue') },
   { path: '/article/:id', name: 'ArticleDetail', component: () => import('../views/ArticleDetail.vue') },
   { path: '/messages', name: 'Messages', component: () => import('../views/Messages.vue'), meta: { requiresAuth: true } },
+  { path: '/profile/:id', name: 'Profile', component: () => import('../views/Profile.vue') },
+  { path: '/settings', name: 'Settings', component: () => import('../views/Settings.vue'), meta: { requiresAuth: true } },
   { path: '/admin', name: 'Admin', component: () => import('../views/Admin.vue'), meta: { requiresAuth: true, requiresAdmin: true } }
 ]
 

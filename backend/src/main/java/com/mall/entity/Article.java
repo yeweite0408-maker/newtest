@@ -15,6 +15,9 @@ public class Article {
     private Long authorId;
     private String authorName;
     private String status;
+    private Integer viewsCount;
+    private Integer likesCount;
+    private Boolean liked;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

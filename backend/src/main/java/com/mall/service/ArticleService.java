@@ -3,6 +3,7 @@ package com.mall.service;
 import com.mall.entity.Article;
 import com.mall.mapper.ArticleMapper;
 import com.mall.mapper.CommentMapper;
+import com.mall.mapper.UserLikeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +14,12 @@ public class ArticleService {
 
     private final ArticleMapper articleMapper;
     private final CommentMapper commentMapper;
+    private final UserLikeMapper userLikeMapper;
 
-    public ArticleService(ArticleMapper articleMapper, CommentMapper commentMapper) {
+    public ArticleService(ArticleMapper articleMapper, CommentMapper commentMapper, UserLikeMapper userLikeMapper) {
         this.articleMapper = articleMapper;
         this.commentMapper = commentMapper;
+        this.userLikeMapper = userLikeMapper;
     }
 
     public List<Article> findAll() {
@@ -49,6 +52,31 @@ public class ArticleService {
 
     public int update(Article article) {
         return articleMapper.update(article);
+    }
+
+    public void incrementViewCount(Long id) {
+        articleMapper.incrementViewCount(id);
+    }
+
+    @Transactional
+    public boolean toggleLike(Long userId, Long articleId) {
+        if (userLikeMapper.exists(userId, articleId) > 0) {
+            userLikeMapper.delete(userId, articleId);
+            articleMapper.decrementLikeCount(articleId);
+            return false;
+        } else {
+            userLikeMapper.insert(userId, articleId);
+            articleMapper.incrementLikeCount(articleId);
+            return true;
+        }
+    }
+
+    public boolean isLiked(Long userId, Long articleId) {
+        return userLikeMapper.exists(userId, articleId) > 0;
+    }
+
+    public List<Article> findLikedByUserId(Long userId) {
+        return userLikeMapper.findLikedByUserId(userId);
     }
 
     @Transactional

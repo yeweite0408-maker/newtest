@@ -48,6 +48,20 @@ public class ArticleController {
         return Result.success(article);
     }
 
+    @PostMapping("/{id}/view")
+    public Result<Void> addView(@PathVariable Long id) {
+        articleService.incrementViewCount(id);
+        return Result.success();
+    }
+
+    @PostMapping("/{id}/like")
+    public Result<Boolean> toggleLike(@PathVariable Long id, @RequestHeader(value = "Authorization", required = false) String token) {
+        if (token == null) return Result.error(401, "请先登录");
+        Long userId = jwtUtil.getUserId(token.replace("Bearer ", ""));
+        boolean liked = articleService.toggleLike(userId, id);
+        return Result.success(liked);
+    }
+
     @PostMapping
     public Result<Article> create(@RequestBody Article article, @RequestHeader("Authorization") String token) {
         Long userId = jwtUtil.getUserId(token.replace("Bearer ", ""));

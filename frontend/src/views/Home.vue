@@ -35,8 +35,8 @@
               <el-icon style="font-size:12px"><User /></el-icon>
               {{ article.authorName }}
             </span>
-            <span v-if="article.tags">
-              <el-tag v-for="tag in article.tags.split(',')" :key="tag" size="small" class="tag">{{ tag.trim() }}</el-tag>
+            <span style="color:var(--text-secondary);font-size:12px">
+              👁 {{ article.viewsCount || 0 }} · ❤ {{ article.likesCount || 0 }}
             </span>
           </div>
         </div>
