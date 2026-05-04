@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,14 +21,22 @@ public class UploadController {
 
     @PostMapping("/image")
     public Result<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return Result.error(400, "请选择文件");
+        }
         try {
-            File dir = new File(uploadPath);
-            if (!dir.exists()) dir.mkdirs();
+            String baseDir = System.getProperty("user.dir");
+            Path dir = Paths.get(baseDir, uploadPath).normalize();
+            Files.createDirectories(dir);
 
-            String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+            String originalName = file.getOriginalFilename();
+            String ext = "";
+            if (originalName != null && originalName.contains(".")) {
+                ext = originalName.substring(originalName.lastIndexOf("."));
+            }
             String filename = UUID.randomUUID().toString() + ext;
-            File dest = new File(dir, filename);
-            file.transferTo(dest);
+            Path dest = dir.resolve(filename);
+            file.transferTo(dest.toFile());
 
             return Result.success(Map.of("url", "/uploads/" + filename));
         } catch (Exception e) {
