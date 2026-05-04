@@ -2,9 +2,9 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
-        <div class="auth-icon">🎮</div>
+        <div class="auth-icon"></div>
         <h2>创建账号</h2>
-        <p>加入 GameMall 游戏商城</p>
+        <p>加入 MyTest</p>
       </div>
       <el-form ref="formRef" :model="form" :rules="rules" size="large" @keyup.enter="handleRegister">
         <el-form-item prop="username">

@@ -2,9 +2,8 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
-        <div class="auth-icon">🎮</div>
         <h2>欢迎回来</h2>
-        <p>登录你的 GameMall 账号</p>
+        <p>登录你的 MyTest 账号</p>
       </div>
       <el-form ref="formRef" :model="form" :rules="rules" size="large" @keyup.enter="handleLogin">
         <el-form-item prop="username">
@@ -22,7 +21,7 @@
         还没有账号？<router-link to="/register">立即注册</router-link>
       </div>
       <div style="margin-top:12px;padding:10px;background:#f8f8f8;border-radius:8px;font-size:12px;color:#999;text-align:center">
-        管理员: admin / admin &nbsp;|&nbsp; 测试用户: test / 123456
+        管理员: admin / admin &nbsp;|&nbsp; 测试: test / 123456
       </div>
     </div>
   </div>

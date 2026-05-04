@@ -1,38 +1,46 @@
 <template>
   <div>
     <Navbar />
-    <div class="page-container" style="max-width: 800px; margin: 0 auto;">
-      <div style="margin-bottom:16px;">
-        <el-button @click="$router.push('/')">← 返回首页</el-button>
-      </div>
+    <div class="page-container" style="max-width:720px;margin:0 auto;">
+      <div class="back-btn" @click="$router.push('/')">← 返回首页</div>
+
       <div v-if="article" class="article-detail">
-        <h1>{{ article.title }}</h1>
-        <div class="meta">
-          <span><el-icon><User /></el-icon> {{ article.authorName }}</span>
-          <span><el-icon><Calendar /></el-icon> {{ article.createdAt?.substring(0, 10) }}</span>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
           <el-tag size="small">{{ article.category }}</el-tag>
+          <span style="color:#86868b;font-size:12px;line-height:22px">{{ article.createdAt?.substring(0, 10) }}</span>
         </div>
+        <h1>{{ article.title }}</h1>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;padding:12px 0;border-bottom:1px solid #f0f0f0">
+          <el-avatar :size="28" style="background:#f0f0f0;color:#515154;font-weight:600;font-size:12px">{{ article.authorName?.[0] }}</el-avatar>
+          <span style="font-size:13px;color:#515154;font-weight:500">{{ article.authorName }}</span>
+        </div>
+
+        <img v-if="article.coverImage" :src="article.coverImage" style="width:100%;border-radius:12px;margin-bottom:24px" />
+
         <div class="content" v-html="renderContent"></div>
 
-        <el-divider />
-        <h3>评论 ({{ comments.length }})</h3>
-        <div class="comment-form" v-if="userStore.isLoggedIn">
-          <el-input v-model="newComment" type="textarea" :rows="3" placeholder="写下你的评论..." />
-          <el-button type="primary" style="margin-top:8px" @click="submitComment">发表评论</el-button>
+        <hr class="apple-divider" />
+
+        <h3 style="font-size:17px;font-weight:600;margin-bottom:16px">评论 ({{ comments.length }})</h3>
+
+        <div v-if="userStore.isLoggedIn" class="comment-form" style="margin-bottom:20px">
+          <el-input v-model="newComment" type="textarea" :rows="3" placeholder="写下你的评论..." style="margin-bottom:8px" />
+          <el-button type="primary" @click="submitComment" :disabled="!newComment.trim()">发表评论</el-button>
         </div>
-        <div v-else style="color:#999;margin:12px 0">
-          请<router-link to="/login">登录</router-link>后发表评论
+        <div v-else style="color:#86868b;margin:12px 0;font-size:14px">
+          请<router-link to="/login" style="color:#0071e3">登录</router-link>后发表评论
         </div>
 
         <div v-for="c in comments" :key="c.id" class="comment-item">
           <div class="comment-header">
-            <el-avatar :size="28">{{ c.username?.[0] }}</el-avatar>
+            <el-avatar :size="26" style="background:#f0f0f0;color:#515154;font-weight:600;font-size:11px">{{ c.username?.[0] }}</el-avatar>
             <span class="comment-user">{{ c.username }}</span>
             <span class="comment-date">{{ c.createdAt?.substring(0, 16) }}</span>
           </div>
           <p class="comment-content">{{ c.content }}</p>
         </div>
-        <el-empty v-if="comments.length === 0" description="暂无评论" />
+        <el-empty v-if="comments.length === 0" description="暂无评论" :image-size="60" style="padding:20px 0" />
       </div>
     </div>
   </div>
@@ -78,14 +86,3 @@ async function submitComment() {
 
 onMounted(fetchData)
 </script>
-
-<style scoped>
-.article-detail h1 { font-size: 26px; margin-bottom: 12px; }
-.meta { display: flex; gap: 16px; color: #999; font-size: 14px; align-items: center; margin-bottom: 24px; }
-.content { font-size: 15px; line-height: 1.8; color: #333; }
-.comment-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-.comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.comment-user { font-weight: 500; font-size: 14px; }
-.comment-date { color: #999; font-size: 12px; }
-.comment-content { margin: 0; color: #333; font-size: 14px; }
-</style>

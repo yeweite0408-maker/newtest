@@ -1,76 +1,81 @@
 <template>
   <div>
     <Navbar />
-    <div class="page-container" style="max-width: 600px; margin: 0 auto;">
-      <h1>我的消息</h1>
-
-      <div v-if="conversations.length > 0" class="user-list">
-        <div v-for="conv in conversations" :key="conv.userId" class="user-item" :class="{ active: currentChat === conv.userId }" @click="openChat(conv.userId, conv.username)">
-          <el-avatar :size="36">{{ conv.username?.[0] }}</el-avatar>
-          <div class="user-info">
-            <span class="user-name">{{ conv.username }}</span>
-          </div>
-        </div>
+    <div class="page-container">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <h1 style="font-size:24px;font-weight:700;margin:0;letter-spacing:-0.3px">好友</h1>
+        <el-input v-model="searchQuery" placeholder="搜索用户..." clearable size="small" style="max-width:200px" @input="searchUsers" />
       </div>
 
-      <div v-if="currentChat" class="chat-box">
-        <div class="chat-header">与 {{ chatUsername }} 的对话</div>
+      <div v-if="!currentChat" class="friend-list">
+        <div v-for="u in filteredUsers" :key="u.id" class="friend-item" @click="startChat(u)">
+          <el-avatar :size="40" style="background:#f0f0f0;color:#515154;font-weight:600">
+            {{ u.username?.[0]?.toUpperCase() }}
+          </el-avatar>
+          <div style="flex:1">
+            <div class="friend-name">{{ u.username }}</div>
+            <div style="font-size:12px;color:#86868b">{{ u.role === 'admin' ? '管理员' : '用户' }}</div>
+          </div>
+          <el-icon style="color:#c7c7cc"><ArrowRight /></el-icon>
+        </div>
+        <el-empty v-if="filteredUsers.length === 0" description="暂无用户" :image-size="60" style="padding:40px 0" />
+      </div>
+
+      <div v-else class="chat-box">
+        <div class="chat-header">
+          <span class="back-btn" @click="currentChat = null">← 返回</span>
+          <span style="margin-left:12px">{{ chatUsername }}</span>
+        </div>
         <div class="chat-messages" ref="msgBox">
           <div v-for="msg in messages" :key="msg.id" class="msg" :class="{ mine: msg.fromUserId === myId }">
             <div class="msg-content">{{ msg.content }}</div>
             <div class="msg-time">{{ msg.createdAt?.substring(11, 16) }}</div>
           </div>
+          <div v-if="messages.length === 0" style="text-align:center;color:#86868b;padding:40px 0;font-size:14px">暂无消息，发送第一条消息吧</div>
         </div>
         <div class="chat-input">
-          <el-input v-model="chatInput" placeholder="输入消息..." @keyup.enter="sendMsg" />
-          <el-button type="primary" @click="sendMsg">发送</el-button>
+          <el-input v-model="chatInput" placeholder="输入消息..." @keyup.enter="sendMsg" clearable />
+          <el-button type="primary" @click="sendMsg" :disabled="!chatInput.trim()">发送</el-button>
         </div>
       </div>
-
-      <el-empty v-else-if="!loading" description="暂无消息，在文章评论中与作者互动吧" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import { useUserStore } from '../stores/user'
-import { getMessages, sendMessage, getConversation } from '../api'
+import { getAllUsers, getConversation, sendMessage as apiSend } from '../api'
 import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
-const conversations = ref([])
+const users = ref([])
+const searchQuery = ref('')
 const messages = ref([])
 const currentChat = ref(null)
 const chatUsername = ref('')
 const chatInput = ref('')
 const myId = ref(null)
 const msgBox = ref(null)
-const loading = ref(true)
 
-async function fetchMessages() {
-  try {
-    const res = await getMessages()
-    const all = res.data || []
-    const userMap = {}
-    all.forEach(m => {
-      const otherId = m.fromUserId === myId.value ? m.toUserId : m.fromUserId
-      const otherName = m.fromUserId === myId.value ? m.toUsername : m.fromUsername
-      if (!userMap[otherId]) {
-        userMap[otherId] = { userId: otherId, username: otherName, lastMsg: m.content, lastTime: m.createdAt }
-      }
-    })
-    conversations.value = Object.values(userMap)
-  } catch {}
-  loading.value = false
+const filteredUsers = computed(() => {
+  let list = users.value.filter(u => u.id !== myId.value)
+  if (searchQuery.value) {
+    list = list.filter(u => u.username.includes(searchQuery.value))
+  }
+  return list
+})
+
+async function fetchUsers() {
+  try { const res = await getAllUsers(); users.value = res.data || [] } catch {}
 }
 
-async function openChat(userId, username) {
-  currentChat.value = userId
-  chatUsername.value = username
+async function startChat(user) {
+  currentChat.value = user.id
+  chatUsername.value = user.username
   try {
-    const res = await getConversation(userId)
+    const res = await getConversation(user.id)
     messages.value = res.data || []
     await nextTick()
     msgBox.value?.scrollTo({ top: msgBox.value.scrollHeight, behavior: 'smooth' })
@@ -80,32 +85,20 @@ async function openChat(userId, username) {
 async function sendMsg() {
   if (!chatInput.value.trim()) return
   try {
-    await sendMessage({ toUserId: currentChat.value, content: chatInput.value })
+    await apiSend({ toUserId: currentChat.value, content: chatInput.value })
     chatInput.value = ''
-    await openChat(currentChat.value, chatUsername.value)
+    const res = await getConversation(currentChat.value)
+    messages.value = res.data || []
+    await nextTick()
+    msgBox.value?.scrollTo({ top: msgBox.value.scrollHeight, behavior: 'smooth' })
   } catch { ElMessage.error('发送失败') }
 }
+
+function searchUsers() {}
 
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   myId.value = user.id
-  fetchMessages()
+  fetchUsers()
 })
 </script>
-
-<style scoped>
-.user-list { margin-bottom: 16px; }
-.user-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #eee; margin-bottom: 8px; }
-.user-item:hover, .user-item.active { background: #f5f7fa; }
-.user-name { font-weight: 500; }
-.chat-box { border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
-.chat-header { padding: 12px 16px; background: #f5f7fa; font-weight: 500; border-bottom: 1px solid #e0e0e0; }
-.chat-messages { height: 300px; overflow-y: auto; padding: 16px; }
-.msg { margin-bottom: 12px; max-width: 70%; }
-.msg.mine { margin-left: auto; }
-.msg-content { background: #f0f0f0; padding: 8px 12px; border-radius: 8px; display: inline-block; }
-.msg.mine .msg-content { background: #409eff; color: #fff; }
-.msg-time { font-size: 12px; color: #999; margin-top: 4px; }
-.msg.mine .msg-time { text-align: right; }
-.chat-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #e0e0e0; }
-</style>

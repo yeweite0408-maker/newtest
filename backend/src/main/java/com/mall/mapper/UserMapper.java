@@ -18,4 +18,7 @@ public interface UserMapper {
 
     @Select("SELECT * FROM users WHERE role = 'user'")
     java.util.List<User> findAllUsers();
+
+    @Select("SELECT id, username, avatar, role FROM users")
+    java.util.List<User> findAll();
 }

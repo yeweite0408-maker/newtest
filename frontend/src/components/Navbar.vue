@@ -1,37 +1,43 @@
 <template>
   <nav class="navbar">
     <router-link to="/" class="navbar-brand">
-      <span class="logo-icon">📝</span>
-      <span class="logo-text">个人博客</span>
+      <span class="logo-text">MyTest</span>
     </router-link>
     <div class="navbar-menu">
       <router-link to="/">
-        <el-button text><el-icon><Reading /></el-icon> 文章</el-button>
+        <el-button text>
+          <el-icon><Reading /></el-icon>
+          <span>文章</span>
+        </el-button>
       </router-link>
       <router-link v-if="userStore.isLoggedIn" to="/messages">
         <el-button text>
-          <el-icon><Message /></el-icon> 消息
+          <el-icon><User /></el-icon>
+          <span>好友</span>
           <el-tag v-if="unreadCount > 0" size="small" type="danger" class="unread-badge">{{ unreadCount }}</el-tag>
         </el-button>
       </router-link>
       <router-link v-if="userStore.isAdmin" to="/admin">
-        <el-button text><el-icon><Setting /></el-icon> 管理</el-button>
+        <el-button text>
+          <el-icon><Setting /></el-icon>
+          <span>管理</span>
+        </el-button>
       </router-link>
       <div v-if="userStore.isLoggedIn" class="navbar-user">
-        <el-icon class="avatar-icon"><UserFilled /></el-icon>
+        <el-icon style="font-size:18px;color:#515154"><UserFilled /></el-icon>
         <span class="username">{{ userStore.username }}</span>
-        <el-button text style="color:#999" @click="handleLogout">退出</el-button>
+        <el-button text style="color:#86868b;font-size:12px" @click="handleLogout">退出</el-button>
       </div>
       <div v-else class="navbar-user">
-        <router-link to="/login"><el-button text>登录</el-button></router-link>
-        <router-link to="/register"><el-button type="primary" size="small">注册</el-button></router-link>
+        <router-link to="/login"><el-button text style="font-size:13px">登录</el-button></router-link>
+        <router-link to="/register"><el-button type="primary" size="small" style="height:30px">注册</el-button></router-link>
       </div>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '../stores/user'
@@ -40,6 +46,7 @@ import { getUnreadCount } from '../api'
 const router = useRouter()
 const userStore = useUserStore()
 const unreadCount = ref(0)
+let timer = null
 
 async function fetchUnread() {
   if (!userStore.isLoggedIn) return
@@ -59,9 +66,13 @@ function handleLogout() {
   }).catch(() => {})
 }
 
-onMounted(fetchUnread)
+onMounted(() => {
+  fetchUnread()
+  timer = setInterval(fetchUnread, 10000)
+})
+onUnmounted(() => { clearInterval(timer) })
 </script>
 
 <style scoped>
-.unread-badge { margin-left: 4px; }
+.unread-badge { margin-left: 4px; padding: 0 5px; height: 18px; line-height: 18px; border: none; }
 </style>

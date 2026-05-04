@@ -62,6 +62,9 @@ export function uploadImage(file) {
   })
 }
 
+// Users
+export function getAllUsers() { return api.get('/users') }
+
 // Admin
 export function getUsers() { return api.get('/admin/users') }
 export function getAdminArticles() { return api.get('/admin/articles') }

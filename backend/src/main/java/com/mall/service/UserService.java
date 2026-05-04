@@ -46,4 +46,8 @@ public class UserService {
     public List<User> findAllUsers() {
         return userMapper.findAllUsers();
     }
+
+    public List<User> findAll() {
+        return userMapper.findAll();
+    }
 }
