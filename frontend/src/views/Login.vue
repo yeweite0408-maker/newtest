@@ -20,9 +20,6 @@
       <div class="auth-footer">
         还没有账号？<router-link to="/register">立即注册</router-link>
       </div>
-      <div style="margin-top:12px;padding:10px;background:#f8f8f8;border-radius:8px;font-size:12px;color:#999;text-align:center">
-        管理员: admin / admin &nbsp;|&nbsp; 测试: test / 123456
-      </div>
     </div>
   </div>
 </template>
