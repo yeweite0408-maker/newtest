@@ -2,7 +2,9 @@ package com.mall.service;
 
 import com.mall.entity.Article;
 import com.mall.mapper.ArticleMapper;
+import com.mall.mapper.CommentMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -10,9 +12,11 @@ import java.util.List;
 public class ArticleService {
 
     private final ArticleMapper articleMapper;
+    private final CommentMapper commentMapper;
 
-    public ArticleService(ArticleMapper articleMapper) {
+    public ArticleService(ArticleMapper articleMapper, CommentMapper commentMapper) {
         this.articleMapper = articleMapper;
+        this.commentMapper = commentMapper;
     }
 
     public List<Article> findAll() {
@@ -47,7 +51,9 @@ public class ArticleService {
         return articleMapper.update(article);
     }
 
+    @Transactional
     public int deleteById(Long id) {
+        commentMapper.deleteByArticleId(id);
         articleMapper.deleteById(id);
         return 1;
     }
