@@ -29,68 +29,44 @@ api.interceptors.response.use(
   }
 )
 
-export function login(data) {
-  return api.post('/auth/login', data)
-}
+export function login(data) { return api.post('/auth/login', data) }
+export function register(data) { return api.post('/auth/register', data) }
 
-export function register(data) {
-  return api.post('/auth/register', data)
-}
+// Articles
+export function getArticles() { return api.get('/articles') }
+export function getArticle(id) { return api.get(`/articles/${id}`) }
+export function searchArticles(keyword) { return api.get('/articles/search', { params: { keyword } }) }
+export function getArticlesByCategory(category) { return api.get(`/articles/category/${category}`) }
+export function createArticle(data) { return api.post('/articles', data) }
+export function updateArticle(id, data) { return api.put(`/articles/${id}`, data) }
+export function deleteArticle(id) { return api.delete(`/articles/${id}`) }
 
-export function getProducts(keyword) {
-  return api.get('/products', { params: { keyword } })
-}
+// Comments
+export function getComments(articleId) { return api.get(`/comments/article/${articleId}`) }
+export function addComment(data) { return api.post('/comments', data) }
+export function deleteComment(id) { return api.delete(`/comments/${id}`) }
 
-export function getProduct(id) {
-  return api.get(`/products/${id}`)
-}
+// Messages
+export function getMessages() { return api.get('/messages') }
+export function getConversation(userId) { return api.get(`/messages/conversation/${userId}`) }
+export function sendMessage(data) { return api.post('/messages', data) }
+export function getUnreadCount() { return api.get('/messages/unread') }
+export function markRead() { return api.put('/messages/read') }
 
-export function getCart() {
-  return api.get('/cart')
-}
-
-export function addToCart(productId, quantity) {
-  return api.post('/cart', { productId, quantity })
-}
-
-export function updateCart(id, quantity) {
-  return api.put(`/cart/${id}`, { quantity })
-}
-
-export function removeCart(id) {
-  return api.delete(`/cart/${id}`)
-}
-
-export function clearCart() {
-  return api.delete('/cart')
-}
-
-export function getUsers() {
-  return api.get('/admin/users')
-}
-
-export function getAdminProducts() {
-  return api.get('/admin/products')
-}
-
-export function addProduct(data) {
-  return api.post('/admin/products', data)
-}
-
-export function updateProduct(id, data) {
-  return api.put(`/admin/products/${id}`, data)
-}
-
-export function deleteProduct(id) {
-  return api.delete(`/admin/products/${id}`)
-}
-
+// Upload
 export function uploadImage(file) {
   const formData = new FormData()
   formData.append('file', file)
-  return api.post('/admin/upload', formData, {
+  return api.post('/upload/image', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
+
+// Admin
+export function getUsers() { return api.get('/admin/users') }
+export function getAdminArticles() { return api.get('/admin/articles') }
+export function createAdminArticle(data) { return api.post('/admin/articles', data) }
+export function updateAdminArticle(id, data) { return api.put(`/admin/articles/${id}`, data) }
+export function deleteAdminArticle(id) { return api.delete(`/admin/articles/${id}`) }
 
 export default api

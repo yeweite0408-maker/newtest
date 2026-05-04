@@ -2,48 +2,15 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 const routes = [
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('../views/Login.vue'),
-    meta: { guest: true }
-  },
-  {
-    path: '/register',
-    name: 'Register',
-    component: () => import('../views/Register.vue'),
-    meta: { guest: true }
-  },
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('../views/Home.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/product/:id',
-    name: 'ProductDetail',
-    component: () => import('../views/ProductDetail.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/cart',
-    name: 'Cart',
-    component: () => import('../views/Cart.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/admin',
-    name: 'Admin',
-    component: () => import('../views/Admin.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true }
-  }
+  { path: '/login', name: 'Login', component: () => import('../views/Login.vue'), meta: { guest: true } },
+  { path: '/register', name: 'Register', component: () => import('../views/Register.vue'), meta: { guest: true } },
+  { path: '/', name: 'Home', component: () => import('../views/Home.vue') },
+  { path: '/article/:id', name: 'ArticleDetail', component: () => import('../views/ArticleDetail.vue') },
+  { path: '/messages', name: 'Messages', component: () => import('../views/Messages.vue'), meta: { requiresAuth: true } },
+  { path: '/admin', name: 'Admin', component: () => import('../views/Admin.vue'), meta: { requiresAuth: true, requiresAdmin: true } }
 ]
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes
-})
+const router = createRouter({ history: createWebHistory(), routes })
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')

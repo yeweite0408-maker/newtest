@@ -1,0 +1,15 @@
+package com.mall.entity;
+
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+public class Comment {
+    private Long id;
+    private Long articleId;
+    private Long userId;
+    private String username;
+    private String avatar;
+    private String content;
+    private LocalDateTime createdAt;
+}

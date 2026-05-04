@@ -2,139 +2,89 @@
   <div>
     <Navbar />
     <div class="page-container">
-      <div class="home-header">
-        <h1>GameMall 游戏商城</h1>
-        <p>发现你喜爱的游戏世界</p>
+      <div class="hero">
+        <h1>个人博客</h1>
+        <p>分享技术，记录生活</p>
+        <div class="search-bar">
+          <el-input v-model="keyword" placeholder="搜索文章..." clearable @keyup.enter="handleSearch">
+            <template #prefix><el-icon><Search /></el-icon></template>
+          </el-input>
+        </div>
       </div>
 
-      <div class="search-bar">
-        <el-input v-model="keyword" placeholder="搜索游戏..." size="large" clearable @clear="search" @keyup.enter="search">
-          <template #prefix>
-            <el-icon><Search /></el-icon>
-          </template>
-          <template #append>
-            <el-button @click="search"><el-icon><Search /></el-icon></el-button>
-          </template>
-        </el-input>
+      <div class="categories">
+        <el-radio-group v-model="currentCategory" @change="filterByCategory">
+          <el-radio-button value="">全部</el-radio-button>
+          <el-radio-button value="技术分享">技术分享</el-radio-button>
+          <el-radio-button value="前端开发">前端开发</el-radio-button>
+          <el-radio-button value="项目实战">项目实战</el-radio-button>
+          <el-radio-button value="开发工具">开发工具</el-radio-button>
+        </el-radio-group>
       </div>
 
-      <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
-        <el-button :type="activeCategory === '' ? 'danger' : ''" plain @click="filterCategory('')">全部</el-button>
-        <el-button
-          v-for="cat in categories"
-          :key="cat"
-          :type="activeCategory === cat ? 'danger' : ''"
-          plain
-          @click="filterCategory(cat)"
-        >{{ cat }}</el-button>
-      </div>
-
-      <div v-if="loading" style="text-align:center;padding:80px 0;">
-        <el-icon class="is-loading" :size="32"><Loading /></el-icon>
-        <p style="margin-top:16px;color:#999;">加载中...</p>
-      </div>
-
-      <div v-else-if="filteredProducts.length === 0" style="text-align:center;padding:80px 0;color:#999;">
-        <el-icon :size="48"><Search /></el-icon>
-        <p style="margin-top:16px;font-size:16px;">没有找到相关游戏</p>
-      </div>
-
-      <div v-else class="product-grid">
-        <el-card v-for="product in filteredProducts" :key="product.id" shadow="hover" class="product-card" @click="goDetail(product.id)">
-          <img :src="product.image" :alt="product.name" class="product-card-img" @error="handleImgError" />
-          <div class="product-card-info">
-            <h3>{{ product.name }}</h3>
-            <div class="developer">{{ product.developer }}</div>
-            <span class="category-tag">{{ product.category }}</span>
-            <div class="product-card-price">
-              <span>
-                <span class="price" :class="{ free: product.price === 0 }">
-                  {{ product.price === 0 ? '免费' : '¥' + product.price }}
-                </span>
-              </span>
-              <el-button type="danger" size="small" plain @click.stop="addToCart(product)">
-                <el-icon><ShoppingCart /></el-icon> 加入购物车
-              </el-button>
-            </div>
+      <div class="article-list">
+        <div v-for="article in articles" :key="article.id" class="article-card" @click="$router.push('/article/' + article.id)">
+          <div class="card-header">
+            <el-tag size="small">{{ article.category }}</el-tag>
+            <span class="date">{{ article.createdAt?.substring(0, 10) }}</span>
           </div>
-        </el-card>
+          <h2 class="article-title">{{ article.title }}</h2>
+          <p class="summary">{{ article.summary }}</p>
+          <div class="card-footer">
+            <span class="author"><el-icon><User /></el-icon> {{ article.authorName }}</span>
+            <span v-if="article.tags">
+              <el-tag v-for="tag in article.tags.split(',')" :key="tag" size="small" class="tag">{{ tag.trim() }}</el-tag>
+            </span>
+          </div>
+        </div>
+        <el-empty v-if="articles.length === 0" description="暂无文章" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, onMounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
-import { getProducts, addToCart as apiAddToCart } from '../api/index'
+import { getArticles, searchArticles } from '../api'
 
-const router = useRouter()
-const products = ref([])
+const articles = ref([])
 const keyword = ref('')
-const loading = ref(true)
-const activeCategory = ref('')
+const currentCategory = ref('')
 
-const categories = computed(() => {
-  const cats = new Set(products.value.map(p => p.category))
-  return [...cats]
-})
-
-const filteredProducts = computed(() => {
-  let list = products.value
-  if (activeCategory.value) {
-    list = list.filter(p => p.category === activeCategory.value)
-  }
-  if (keyword.value) {
-    const kw = keyword.value.toLowerCase()
-    list = list.filter(p => p.name.toLowerCase().includes(kw) || p.description?.toLowerCase().includes(kw))
-  }
-  return list
-})
-
-onMounted(async () => {
-  await loadProducts()
-})
-
-async function loadProducts() {
-  loading.value = true
+async function fetchArticles() {
+  try { const res = await getArticles(); articles.value = res.data || [] } catch {}
+}
+async function handleSearch() {
+  if (!keyword.value.trim()) { fetchArticles(); return }
+  try { const res = await searchArticles(keyword.value); articles.value = res.data || [] } catch {}
+}
+async function filterByCategory(category) {
+  currentCategory.value = category
+  if (!category) { fetchArticles(); return }
   try {
-    const res = await getProducts()
-    if (res.code === 200) {
-      products.value = res.data
-    }
-  } catch (e) {
-    ElMessage.error('加载商品失败')
-  } finally {
-    loading.value = false
-  }
+    const res = await getArticles()
+    articles.value = (res.data || []).filter(a => a.category === category)
+  } catch {}
 }
 
-function search() {
-  // Client-side search is already handled by filteredProducts computed
-}
-
-function filterCategory(cat) {
-  activeCategory.value = activeCategory.value === cat ? '' : cat
-}
-
-function goDetail(id) {
-  router.push(`/product/${id}`)
-}
-
-async function addToCart(product) {
-  try {
-    const res = await apiAddToCart(product.id, 1)
-    if (res.code === 200) {
-      ElMessage.success(`已将「${product.name}」加入购物车`)
-    }
-  } catch (e) {
-    ElMessage.error('添加失败')
-  }
-}
-
-function handleImgError(e) {
-  e.target.src = 'https://placehold.co/460x215/1a1a2e/e94560?text=GameMall'
-}
+onMounted(fetchArticles)
 </script>
+
+<style scoped>
+.hero { text-align: center; padding: 40px 0 20px; }
+.hero h1 { font-size: 28px; margin: 0 0 8px; }
+.hero p { color: #666; margin: 0 0 16px; }
+.search-bar { max-width: 400px; margin: 0 auto; }
+.categories { text-align: center; margin: 16px 0; }
+.article-list { max-width: 800px; margin: 0 auto; }
+.article-card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; cursor: pointer; border: 1px solid #eee; transition: box-shadow .2s; }
+.article-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.article-title { font-size: 20px; margin: 0 0 8px; color: #1a1a1a; }
+.summary { color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 12px; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; }
+.author { color: #999; font-size: 13px; display: flex; align-items: center; gap: 4px; }
+.tag { margin-right: 4px; }
+.date { color: #999; font-size: 13px; }
+</style>
