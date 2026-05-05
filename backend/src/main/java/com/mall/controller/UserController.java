@@ -8,6 +8,7 @@ import com.mall.service.UserService;
 import com.mall.util.JwtUtil;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,10 @@ public class UserController {
         User user = userService.findById(userId);
         if (user == null) return Result.error(404, "用户不存在");
         List<Article> articles = articleService.findByAuthorId(userId);
-        return Result.success(Map.of("user", user, "articles", articles));
+        Map<String, Object> map = new HashMap<>();
+        map.put("user", user);
+        map.put("articles", articles != null ? articles : List.of());
+        return Result.success(map);
     }
 
     @GetMapping("/{userId}/likes")
