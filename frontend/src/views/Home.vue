@@ -78,11 +78,7 @@ async function handleSearch() {
 }
 async function filterByCategory(category) { currentCategory.value = category; activeTag.value = ''; if (!category) { fetchArticles(); return }; try { const res = await getArticles(); articles.value = (res.data || []).filter(a => a.category === category) } catch {} }
 async function filterByTag(tag) { activeTag.value = tag; try { const res = await getArticles(); articles.value = (res.data || []).filter(a => a.tags?.includes(tag)) } catch {} }
-function goWrite() {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-  if (user?.role === 'admin') router.push('/admin?write=1')
-  else router.push('/admin')
-}
+function goWrite() { router.push('/editor') }
 
 onMounted(() => { fetchArticles(); fetchTags() })
 </script>
