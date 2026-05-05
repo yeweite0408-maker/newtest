@@ -77,7 +77,7 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
 import Navbar from '../components/Navbar.vue'
 import { useUserStore } from '../stores/user'
-import { getArticle, trackView, toggleLike, getComments, addComment, toggleFollow, checkFollow, copyText } from '../api'
+import { getArticle, trackView, toggleLike, getComments, addComment, toggleFollow, checkFollow } from '../api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Star } from '@element-plus/icons-vue'
 
