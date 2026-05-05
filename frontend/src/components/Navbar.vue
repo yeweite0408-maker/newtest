@@ -42,7 +42,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '../stores/user'
-import { getUnreadCount } from '../api'
+import { getUnreadCount, getNotificationUnread } from '../api'
 
 const router = useRouter()
 const userStore = useUserStore()

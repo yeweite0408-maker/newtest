@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100),
     avatar VARCHAR(255),
+    bio VARCHAR(500),
     role VARCHAR(20) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS articles (
     tags VARCHAR(200),
     author_id BIGINT NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'published',
+    is_pinned BOOLEAN DEFAULT FALSE,
     views_count INT DEFAULT 0,
     likes_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -61,5 +63,29 @@ CREATE TABLE IF NOT EXISTS user_likes (
     FOREIGN KEY (article_id) REFERENCES articles(id)
 );
 
-ALTER TABLE articles ADD COLUMN IF NOT EXISTS views_count INT DEFAULT 0;
-ALTER TABLE articles ADD COLUMN IF NOT EXISTS likes_count INT DEFAULT 0;
+CREATE TABLE IF NOT EXISTS follows (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    follower_id BIGINT NOT NULL,
+    followee_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (follower_id) REFERENCES users(id),
+    FOREIGN KEY (followee_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    content VARCHAR(500),
+    related_id BIGINT,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS page_views (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    article_id BIGINT,
+    ip VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

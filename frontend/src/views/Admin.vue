@@ -116,7 +116,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
-import api, { getAdminArticles, createAdminArticle, updateAdminArticle, deleteAdminArticle, getUsers, uploadImage, getCategories } from '../api'
+import api, { getAdminArticles, createAdminArticle, updateAdminArticle, deleteAdminArticle, getUsers, uploadImage, getCategories, getDrafts, getStats } from '../api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()

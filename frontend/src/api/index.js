@@ -67,6 +67,7 @@ export function getAllUsers() { return api.get('/users') }
 export function getUserProfile(userId) { return api.get(`/users/profile/${userId}`) }
 export function getLikedArticles(userId) { return api.get(`/users/${userId}/likes`) }
 export function changePassword(data) { return api.put('/users/password', data) }
+export function updateBio(data) { return api.put('/users/bio', data) }
 
 // Likes & Views
 export function addView(articleId) { return api.post(`/articles/${articleId}/view`) }
@@ -74,6 +75,27 @@ export function toggleLike(articleId) { return api.post(`/articles/${articleId}/
 
 // Categories
 export function getCategories() { return api.get('/categories') }
+
+// Tags
+export function getTags() { return api.get('/articles/tags') }
+
+// Drafts
+export function getDrafts() { return api.get('/articles/drafts') }
+
+// Follows
+export function getFollows() { return api.get('/follows') }
+export function toggleFollow(userId) { return api.post(`/follows/${userId}`) }
+export function getFollowCount(userId) { return api.get(`/follows/count/${userId}`) }
+export function checkFollow(userId) { return api.get(`/follows/check/${userId}`) }
+
+// Notifications
+export function getNotifications() { return api.get('/notifications') }
+export function getNotificationUnread() { return api.get('/notifications/unread') }
+export function markNotificationRead() { return api.put('/notifications/read') }
+
+// Analytics
+export function trackView(articleId) { return api.post('/analytics/view', { articleId }) }
+export function getStats() { return api.get('/analytics/stats') }
 
 // Admin
 export function getUsers() { return api.get('/admin/users') }

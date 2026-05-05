@@ -75,6 +75,14 @@ public class ArticleService {
         return userLikeMapper.exists(userId, articleId) > 0;
     }
 
+    public List<Article> findDraftsByAuthor(Long authorId) {
+        return articleMapper.findDraftsByAuthor(authorId);
+    }
+
+    public List<String> findAllTags() {
+        return articleMapper.findAllTags();
+    }
+
     public List<Article> findLikedByUserId(Long userId) {
         return userLikeMapper.findLikedByUserId(userId);
     }

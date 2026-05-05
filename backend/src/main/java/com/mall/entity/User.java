@@ -12,6 +12,7 @@ public class User {
     private String password;
     private String email;
     private String avatar;
+    private String bio;
     private String role;
     private LocalDateTime createdAt;
 }

@@ -41,6 +41,17 @@ public class ArticleController {
         return Result.success(articleService.search(keyword));
     }
 
+    @GetMapping("/tags")
+    public Result<List<String>> tags() {
+        return Result.success(articleService.findAllTags());
+    }
+
+    @GetMapping("/drafts")
+    public Result<List<Article>> drafts(@RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.getUserId(token.replace("Bearer ", ""));
+        return Result.success(articleService.findDraftsByAuthor(userId));
+    }
+
     @GetMapping("/{id}")
     public Result<Article> getById(@PathVariable Long id) {
         Article article = articleService.findById(id);

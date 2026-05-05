@@ -15,6 +15,7 @@ public class Article {
     private Long authorId;
     private String authorName;
     private String status;
+    private Boolean isPinned;
     private Integer viewsCount;
     private Integer likesCount;
     private Boolean liked;

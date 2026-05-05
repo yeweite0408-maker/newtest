@@ -66,6 +66,13 @@ public class UserController {
         return Result.success();
     }
 
+    @PutMapping("/bio")
+    public Result<Void> updateBio(@RequestBody Map<String, String> body, @RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.getUserId(token.replace("Bearer ", ""));
+        userService.updateBio(userId, body.getOrDefault("bio", ""));
+        return Result.success();
+    }
+
     @GetMapping("/search")
     public Result<List<User>> search(@RequestParam String keyword) {
         return Result.success(userService.findAll().stream()

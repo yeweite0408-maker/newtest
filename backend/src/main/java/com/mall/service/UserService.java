@@ -51,6 +51,10 @@ public class UserService {
         return userMapper.findAll();
     }
 
+    public void updateBio(Long userId, String bio) {
+        userMapper.updateBio(userId, bio);
+    }
+
     public boolean changePassword(Long userId, String oldPassword, String newPassword) {
         User user = userMapper.findById(userId);
         if (user == null) return false;
