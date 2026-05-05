@@ -78,20 +78,10 @@ const followed = ref(false)
 const followCount = ref({ followers: 0, followees: 0 })
 
 onMounted(async () => {
-  try {
-    const [p, l, fc] = await Promise.all([
-      getUserProfile(route.params.id),
-      getLikedArticles(route.params.id),
-      getFollowCount(route.params.id)
-    ])
-    profile.value = p.data
-    likedArticles.value = l.data || []
-    followCount.value = fc.data || {}
-    bioInput.value = p.data?.user?.bio || ''
-  } catch {}
-  if (user && !isMe.value) {
-    try { const r = await checkFollow(route.params.id); followed.value = r.data } catch {}
-  }
+  try { const p = await getUserProfile(route.params.id); profile.value = p.data; bioInput.value = p.data?.user?.bio || '' } catch {}
+  try { const l = await getLikedArticles(route.params.id); likedArticles.value = l.data || [] } catch {}
+  try { const fc = await getFollowCount(route.params.id); followCount.value = fc.data || {} } catch {}
+  if (user && !isMe.value) { try { const r = await checkFollow(route.params.id); followed.value = r.data } catch {} }
 })
 
 async function saveBio() {
